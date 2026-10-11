@@ -1,0 +1,9 @@
+# Dependencies & OS
+.DS_Store
+Thumbs.db
+node_modules/
+
+# Local logs & scratch
+*.log
+scratch/
+.system_generated/

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>워드트리스 타워 - Wordtris Tower</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;800&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glass-bg-decor decor-1"></div>
+    <div class="glass-bg-decor decor-2"></div>
+    <div class="glass-bg-decor decor-3"></div>
+
+    <div class="app-container">
+        <!-- Top Navigation Header -->
+        <header class="app-header glass-card">
+            <div class="logo-group">
+                <span class="logo-icon">📚</span>
+                <div class="logo-text">
+                    <h1>WORDTRIS</h1>
+                    <span class="logo-sub">TOWER</span>
+                </div>
+            </div>
+
+            <div class="header-controls">
+                <button id="btn-guide" class="btn btn-pill" title="게임 방법 가이드">
+                    <span>❓</span> 게임 방법
+                </button>
+                <button id="btn-lang-toggle" class="btn btn-pill" title="언어 선택">
+                    <span class="lang-flag" id="lang-flag">🇰🇷</span>
+                    <span class="lang-label" id="lang-label">한글 모드</span>
+                </button>
+                <button id="btn-sound-toggle" class="btn btn-icon" title="음악/효과음 토글">
+                    <span id="sound-icon">🔊</span>
+                </button>
+                <button id="btn-wordbook" class="btn btn-gold" title="나만의 단어장">
+                    <span>📖</span> 단어장 <span id="wordbook-badge" class="badge">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="main-workspace">
+            <!-- Left Info Panel -->
+            <aside class="side-panel left-panel glass-card">
+                <div class="stat-box">
+                    <span class="stat-label">SCORE</span>
+                    <span id="score-display" class="stat-value">0</span>
+                </div>
+
+                <div class="stat-box">
+                    <span class="stat-label">HIGH SCORE</span>
+                    <span id="high-score-display" class="stat-value highlight">0</span>
+                </div>
+
+                <div class="stat-box">
+                    <span class="stat-label">WORDS FORMED</span>
+                    <span id="words-count-display" class="stat-value">0</span>
+                </div>
+
+                <div class="combo-box" id="combo-box">
+                    <span class="combo-title">COMBO</span>
+                    <span id="combo-display" class="combo-value">x1</span>
+                </div>
+            </aside>
+
+            <!-- Center Game Tower Canvas -->
+            <section class="tower-container glass-card">
+                <div class="canvas-wrapper">
+                    <canvas id="game-canvas" width="360" height="720"></canvas>
+
+                    <!-- Floating Particle & Combo FX Container -->
+                    <div id="fx-overlay" class="fx-overlay"></div>
+
+                    <!-- Step-by-Step Interactive Tutorial Overlay -->
+                    <div id="tutorial-overlay" class="overlay-screen tutorial-screen hidden">
+                        <div class="tutorial-card glass-card">
+                            <div class="tutorial-step-indicator">
+                                <span class="step-dot active" data-step="1"></span>
+                                <span class="step-dot" data-step="2"></span>
+                                <span class="step-dot" data-step="3"></span>
+                                <span class="step-dot" data-step="4"></span>
+                            </div>
+
+                            <div class="tutorial-content-box">
+                                <!-- Step 1 -->
+                                <div class="tutorial-step-content" data-step="1">
+                                    <div class="tutorial-icon">🎯</div>
+                                    <h3>Step 1: 글자 떨어뜨리기</h3>
+                                    <p>위에서 자음, 모음(한글) 또는 알파벳(영어) 블록이 떨어집니다.<br>방향키로 블록을 원하는 위치에 쌓아보세요!</p>
+                                    <div class="demo-controls-box">
+                                        <span><kbd>←</kbd> <kbd>→</kbd> 좌우 이동</span>
+                                        <span><kbd>↓</kbd> 천천히 하강</span>
+                                        <span><kbd>Space</kbd> 즉시 하강</span>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div class="tutorial-step-content hidden" data-step="2">
+                                    <div class="tutorial-icon">🧩</div>
+                                    <h3>Step 2: 한글 자모 조합하기</h3>
+                                    <p>자음 블록 옆에 모음 블록을 놓으면 자동으로 결합하여 온전한 글자(음절)가 됩니다!</p>
+                                    <div class="demo-animation-box">
+                                        <span class="demo-block consonant">ㄱ</span>
+                                        <span class="demo-plus">+</span>
+                                        <span class="demo-block vowel">ㅏ</span>
+                                        <span class="demo-arrow">➔</span>
+                                        <span class="demo-block syllable">가</span>
+                                    </div>
+                                </div>
+
+                                <!-- Step 3 -->
+                                <div class="tutorial-step-content hidden" data-step="3">
+                                    <div class="tutorial-icon">💥</div>
+                                    <h3>Step 3: 단어 폭발 & 콤보</h3>
+                                    <p>가로 또는 세로로 연속된 글자가 사전에 등록된 단어가 되면 <strong>파티클 폭발</strong>과 함께 점수를 얻습니다!</p>
+                                    <div class="demo-animation-box">
+                                        <span class="demo-block matched">사</span>
+                                        <span class="demo-block matched">과</span>
+                                        <span class="demo-sparkle">✨ 🔊 "사과!"</span>
+                                    </div>
+                                </div>
+
+                                <!-- Step 4 -->
+                                <div class="tutorial-step-content hidden" data-step="4">
+                                    <div class="tutorial-icon">🎲</div>
+                                    <h3>Step 4: 리롤 스킬 & 단어장</h3>
+                                    <p>원치 않는 글자는 <kbd>R</kbd> 키나 <strong>리롤 버튼</strong>으로 교체할 수 있으며, 터뜨린 단어는 <strong>단어장</strong>에 수록됩니다!</p>
+                                    <div class="demo-info-badge">
+                                        <span>📖 단어장에서 언제든 뜻과 발음을 다시 들을 수 있습니다!</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tutorial-footer-actions">
+                                <button id="btn-tutorial-skip" class="btn btn-pill">건너뛰기</button>
+                                <button id="btn-tutorial-next" class="btn btn-gold">다음 ▶</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pause Overlay -->
+                    <div id="pause-overlay" class="overlay-screen hidden">
+                        <h2>PAUSED</h2>
+                        <p>ESC 키 또는 P 키를 눌러 계속하세요</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Controls & Preview Panel -->
+            <aside class="side-panel right-panel glass-card">
+                <div class="preview-box">
+                    <span class="stat-label">NEXT BLOCK</span>
+                    <div class="next-block-container" id="next-block-preview">
+                        <span class="next-letter" id="next-letter-display">ㄱ</span>
+                    </div>
+                </div>
+
+                <div class="skill-box">
+                    <span class="stat-label">SPECIAL SKILL</span>
+                    <button id="btn-reroll" class="btn btn-skill">
+                        <span class="skill-icon">🎲</span>
+                        <div class="skill-text">
+                            <span class="skill-title">블록 리롤</span>
+                            <span class="skill-count" id="reroll-count-display">남은 횟수: 3</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="recent-word-box">
+                    <span class="stat-label">RECENT MATCH</span>
+                    <div id="recent-word-display" class="recent-word-card">
+                        <span class="recent-word-text">-</span>
+                        <span class="recent-word-meaning">단어를 완성해보세요!</span>
+                    </div>
+                </div>
+
+                <div class="guide-box">
+                    <span class="guide-title">💡 조작 안내</span>
+                    <ul class="guide-list">
+                        <li><kbd>←</kbd> <kbd>→</kbd> 좌우 이동</li>
+                        <li><kbd>↓</kbd> 천천히 내려놓기</li>
+                        <li><kbd>Space</kbd> 즉시 하강</li>
+                        <li><kbd>R</kbd> 블록 변경 (리롤)</li>
+                        <li><kbd>P</kbd> 일시정지</li>
+                    </ul>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Mobile Touch Controller -->
+        <footer class="mobile-controls glass-card">
+            <div class="touch-row">
+                <button id="btn-touch-left" class="btn btn-touch">◀</button>
+                <button id="btn-touch-down" class="btn btn-touch">▼</button>
+                <button id="btn-touch-right" class="btn btn-touch">▶</button>
+            </div>
+            <div class="touch-row">
+                <button id="btn-touch-drop" class="btn btn-touch btn-drop">⚡ HARD DROP</button>
+                <button id="btn-touch-reroll" class="btn btn-touch btn-reroll-touch">🎲 REROLL</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- How to Play Visual Guide Modal -->
+    <div id="guide-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-card guide-modal-content">
+            <div class="modal-header">
+                <h2>❓ 게임 플레이 가이드</h2>
+                <button id="btn-close-guide" class="btn-close">&times;</button>
+            </div>
+
+            <div class="guide-modal-body">
+                <div class="guide-card-item">
+                    <div class="guide-card-icon">1️⃣</div>
+                    <div class="guide-card-info">
+                        <h4>글자 블록 떨어뜨리기</h4>
+                        <p>위에서 떨어지는 자음, 모음, 영문 알파벳 블록을 원하는 위치에 정확히 쌓으세요.</p>
+                    </div>
+                </div>
+
+                <div class="guide-card-item">
+                    <div class="guide-card-icon">2️⃣</div>
+                    <div class="guide-card-info">
+                        <h4>한글 자동 조합</h4>
+                        <p>자음(`ㄱ`, `ㄴ`...)과 모음(`ㅏ`, `ㅓ`...)이 인접하게 배치되면 자동으로 온전한 한글 음절(`가`, `나`...)로 변신합니다.</p>
+                    </div>
+                </div>
+
+                <div class="guide-card-item">
+                    <div class="guide-card-icon">3️⃣</div>
+                    <div class="guide-card-info">
+                        <h4>단어 폭발 & 콤보</h4>
+                        <p>가로/세로 방향으로 연속된 글자가 단어 사전에 맞으면 빛나는 파티클과 함께 터지며, 중력 추락으로 연속 단어가 터지면 <strong>콤보 배수 점수</strong>를 받습니다.</p>
+                    </div>
+                </div>
+
+                <div class="guide-card-item">
+                    <div class="guide-card-icon">4️⃣</div>
+                    <div class="guide-card-info">
+                        <h4>발음 낭독 & 나만의 단어장</h4>
+                        <p>단어가 폭발할 때 TTS 음성으로 발음을 낭독해주며, 터뜨린 모든 단어는 <strong>📖 단어장</strong>에 수록되어 언제든 뜻과 발음을 공부할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-modal-footer">
+                <button id="btn-restart-tutorial" class="btn btn-pill">🔄 튜토리얼 다시보기</button>
+                <button id="btn-close-guide-confirm" class="btn btn-gold">확인 및 플레이</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wordbook Modal -->
+    <div id="wordbook-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h2>📖 나만의 수집 단어장</h2>
+                <button id="btn-close-wordbook" class="btn-close">&times;</button>
+            </div>
+
+            <div class="modal-toolbar">
+                <input type="text" id="wordbook-search" class="search-input" placeholder="수집한 단어 검색...">
+                <div class="filter-tabs">
+                    <button class="tab-btn active" data-filter="all">전체</button>
+                    <button class="tab-btn" data-filter="kr">한글 🇰🇷</button>
+                    <button class="tab-btn" data-filter="en">영어 🇺🇸</button>
+                </div>
+            </div>
+
+            <div id="wordbook-list" class="wordbook-grid">
+                <!-- Word cards rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="modal-overlay hidden">
+        <div class="modal-content game-over-card glass-card">
+            <h2 class="game-over-title">GAME OVER</h2>
+            <div class="final-score-box">
+                <span class="final-score-label">FINAL SCORE</span>
+                <span id="final-score" class="final-score-value">0</span>
+            </div>
+
+            <div class="final-stats-grid">
+                <div class="final-stat-item">
+                    <span class="final-stat-label">수집한 단어</span>
+                    <span id="final-words-count" class="final-stat-val">0개</span>
+                </div>
+                <div class="final-stat-item">
+                    <span class="final-stat-label">최대 콤보</span>
+                    <span id="final-max-combo" class="final-stat-val">x1</span>
+                </div>
+            </div>
+
+            <button id="btn-restart" class="btn btn-gold btn-large">🔄 다시 도전하기</button>
+        </div>
+    </div>
+
+    <script src="js/trie.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/wordbook.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
